@@ -78,7 +78,7 @@ jobs:
       - name: Start Build backend
         run: |
           cd ..
-          docker compose -f docker-compose-back-build.yaml up -d
+          docker compose -f docker-compose-back-build.yml up -d
           docker ps -a
 
       - name: Sleep for 10 seconds
@@ -139,4 +139,4 @@ jobs:
         if: always()        
         run: |
           cd ..
-          docker compose -f docker-compose-back-build.yaml down
+          docker compose -f docker-compose-back-build.yml down
