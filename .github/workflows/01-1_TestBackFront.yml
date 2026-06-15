@@ -37,7 +37,7 @@ jobs:
       - name: Database Check
         run: |
           sudo apt-get install -y mysql-client
-          mysql --host 127.0.0.1 --port 3306 -u root -proot -e "SHOW DATABASES"
+          mysql --host 127.0.0.1 --port 3306 -u root -ptoor -e "SHOW DATABASES"
 
       - name: Setup Node
         uses: actions/setup-node@v3
@@ -52,7 +52,7 @@ jobs:
 
       - name: populate Bdd
         run: |
-          mysql -u root -proot --host 127.0.0.1 --port 3306 --database base < ./test/insert_test_user.sql
+          mysql -u root -ptoor --host 127.0.0.1 --port 3306 --database base < ./test/insert_test_user.sql
 
       - name: Run ALL Tests and Coverage
         run: npm run test:cov     
