@@ -64,5 +64,79 @@ jobs:
           path: backend/coverage/
           retention-days: 1
 
-  # Frontend:
-  #   needs: [Backend]
+  Frontend:
+    needs: [Backend]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Start Build backend
+        run: |
+          cd ..
+          docker compose -f docker-compose-back-build.yaml up -d
+          docker ps -a
+
+      - name: Sleep for 10 seconds
+        uses: jakejarvis/wait-action@master
+        with:
+          time: '10s'
+      
+      - name: test Backend Container
+        if: success()
+        run: curl http://127.0.0.1:12000
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+
+      - name: Cypress E2E Install
+        uses: cypress-io/github-action@v6
+        with:
+          runTests: false
+          working-directory: frontend
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Start E2E Test
+        uses: cypress-io/github-action@v6
+        with: 
+          install: false
+          working-directory: frontend
+          start: npm run dev
+
+      - name: Generate Coverage Repport
+        run: npm run cypress:cov
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: frontend/cypress/screenshots
+          retention-days: 1
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-videos
+          path: frontend/cypress/videos
+          retention-days: 1
+
+      - name: Upload Coverage Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: front-coverage-report
+          path: frontend/coverage
+          retention-days: 1
+
+      - name: Clean Builder Backend Docker
+        if: always()        
+        run: |
+          cd ..
+          docker compose -f docker-compose-back-build.yaml down
